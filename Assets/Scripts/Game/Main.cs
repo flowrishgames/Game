@@ -19,35 +19,44 @@ public class Main : MonoBehaviour
 
     // キー処理関係
     /** キープレスイベント */
-    static int KEY_PRESSED = 1;
+    int KEY_PRESSED = 1;
     /** キーリリースイベント */
-    static int KEY_RELEASED = 0;
+    int KEY_RELEASED = 0;
     // 対応ビット位置
     /** KEY_0　*/
-    static int KEY_0 = 0x00;
+    int KEY_0 = 0x00;
     /** KEY_1　*/
-    static int KEY_1 = 0x01;
+    int KEY_1 = 0x01;
     /** KEY_2　*/
-    static int KEY_2 = 0x02;
+    int KEY_2 = 0x02;
     /** KEY_3　*/
-    static int KEY_3 = 0x03;
+    int KEY_3 = 0x03;
     /** KEY_4　*/
-    static int KEY_4 = 0x04;
+    int KEY_4 = 0x04;
     /** KEY_5　*/
-    static int KEY_5 = 0x05;
+    int KEY_5 = 0x05;
     /** KEY_6　*/
-    static int KEY_6 = 0x06;
+    int KEY_6 = 0x06;
     /** KEY_7　*/
-    static int KEY_7 = 0x07;
+    int KEY_7 = 0x07;
     /** KEY_8　*/
-    static int KEY_8 = 0x08;
+    int KEY_8 = 0x08;
     /** KEY_9　*/
-    static int KEY_9 = 0x09;
+    int KEY_9 = 0x09;
     /** 方向キー */
-    static int KEY_ARROW = 0x10;
+    int KEY_ARROW = 0x10;
     /** KEY_SELECT　*/
-    static int KEY_SELECT = 0x14;
+    int KEY_SELECT = 0x14;
 
+    /// <summary>
+    /// 落ちてくる重りの数
+    /// </summary>
+    const int DUMBBELL_NUM = 4;
+    /// <summary>
+    /// 重りクラス
+    /// </summary>
+    [SerializeField]
+    Dumbbell[] dumbbells = new Dumbbell[DUMBBELL_NUM];
 
 
     /** キーリスナー */
@@ -69,7 +78,7 @@ public class Main : MonoBehaviour
 
     //static private Image		img[] = new Image[16];
     //static int time = 0;
-    static int ct = 0;
+    int ct = 0;
     //static int touroku = 0;
     //static int jikoshin = 0;
     //static int retry = 0;
@@ -78,10 +87,10 @@ public class Main : MonoBehaviour
     [SerializeField]
     int game = 0;
 
-    static int go_time = 0;
-    static int st_time = 0;
+    int go_time = 0;
+    int st_time = 0;
     int score = 0;
-    static int gm_off = 0;
+    int gm_off = 0;
     private int plOffsetX = 4;
     private int plOffsetY = 7;
     //static int char_p = 0;
@@ -102,9 +111,9 @@ public class Main : MonoBehaviour
     /// <summary>
     /// レベルアップタイマー
     /// </summary>
-    static int l_time = 0;
-    static int clc = 0;
-    static int tubure = 0;
+     int l_time = 0;
+    int clc = 0;
+    int tubure = 0;
     [SerializeField]
     int ikigire = 0;
     [SerializeField]
@@ -122,7 +131,7 @@ public class Main : MonoBehaviour
     static int pl_y = 0;
     //static int opl_x = 0;
     //static int opl_y = 0;
-    static int start_time = 0;
+    int start_time = 0;
     [SerializeField]
     int forward_hashiru = 0;
     /// <summary>
@@ -138,19 +147,19 @@ public class Main : MonoBehaviour
     /// <summary>
     /// 走っているカウント
     /// </summary>
-    static int running_counter = 0;
-    static int cmb_x = 0;
-    static int cmb_x2 = 0;
+    int running_counter = 0;
+    int cmb_x = 0;
+    int cmb_x2 = 0;
     //static int ocmb_x = 0;
     //static int ocmb_x2 = 0;
 
     static int[] em_x = new int[4];
-    static int[] em_y = new int[4];
+    //static int[] em_y = new int[4];
     //static int[] oem_x = new int[4];
     //static int[] oem_y = new int[4];
-    static int[] em_buru = new int[4];
-    [SerializeField]
-    int[] em_time = new int[4];
+    //static int[] em_buru = new int[4];
+    //[SerializeField]
+    //int[] em_time = new int[4];
 
 
     // ムービークリップ
@@ -158,30 +167,30 @@ public class Main : MonoBehaviour
     [SerializeField]
     Transform swfRoot;
     /** タイトル */
-    static GameObject mc_title;
+    GameObject mc_title;
     /** ゲーム中 */
-    static GameObject mc_game;
+    GameObject mc_game;
 
     // 親クリップ：mc_game
     /** ベルト */
-    static GameObject mc_band_up;
-    static GameObject mc_band_down;
+    GameObject mc_band_up;
+    GameObject mc_band_down;
     /** ギア */
-    static MovieClip mc_gear_l;
-    static MovieClip mc_gear_r;
+    MovieClip mc_gear_l;
+    MovieClip mc_gear_r;
     /** ワイヤー */
-    static GameObject[] mc_wire = new GameObject[4];
+    GameObject[] mc_wire = new GameObject[4];
     /** おもり */
-    static GameObject[] mc_weight = new GameObject[4];
+    GameObject[] mc_weight = new GameObject[4];
     /** コブン */
-    static GameObject mc_kobun;
-    static GameObject mc_player;
+    GameObject mc_kobun;
+    GameObject mc_player;
     /** メーター */
-    static GameObject mc_energy;
+    GameObject mc_energy;
     /** ゲームオーバー */
-    static GameObject mc_game_over;
+    GameObject mc_game_over;
     /** READY */
-    static GameObject mc_ready;
+    GameObject mc_ready;
     /** スコア表示 */
     //static GameObject[] mc_score = new GameObject[6];
 
@@ -244,12 +253,12 @@ public class Main : MonoBehaviour
         entry00.eventID = EventTriggerType.PointerDown;
         entry00.callback.AddListener(call =>
         {
-            processEvent(Main.KEY_PRESSED, KEY_SELECT);
+            processEvent(KEY_PRESSED, KEY_SELECT);
 
             // ゲームオーバー中
             if ((game == 2))
             {
-                if ((m_key & ((1 << Main.KEY_SELECT) | (1 << Main.KEY_5))) != 0)
+                if ((m_key & ((1 << KEY_SELECT) | (1 << KEY_5))) != 0)
                 {
                     if (go_time == 0)
                     {
@@ -267,7 +276,7 @@ public class Main : MonoBehaviour
         entry01.eventID = EventTriggerType.PointerUp;
         entry01.callback.AddListener(call =>
         {
-            processEvent(Main.KEY_RELEASED, KEY_SELECT);
+            processEvent(KEY_RELEASED, KEY_SELECT);
         });
         m_key_listener.triggers.Add(entry01);
 
@@ -405,7 +414,7 @@ public class Main : MonoBehaviour
             // 最初の一回だけKEY_PRESSEDイベントを処理するための条件処理。
             if (m_hold_key_flg == 0)
             {
-                if (param == 48 || param == 96) m_key = 1 << Main.KEY_0;
+                if (param == 48 || param == 96) m_key = 1 << KEY_0;
                 //else if (param == 49 || param == 97) m_key = 1 << Main.KEY_1;
                 //else if (param == 50 || param == 98) m_key = 1 << Main.KEY_2;
                 //else if (param == 51 || param == 99) m_key = 1 << Main.KEY_3;
@@ -419,7 +428,7 @@ public class Main : MonoBehaviour
                 //else if (param == Key.UP || param == 38 || param == 9) m_key = 1 << Main.KEY_ARROW;
                 //else if (param == Key.RIGHT || param == 37) m_key = 1 << Main.KEY_ARROW;
                 //else if (param == Key.DOWN || param == 40 || param == 9) m_key = 1 << Main.KEY_ARROW;
-                else if (param == 20) m_key = 1 << Main.KEY_SELECT;
+                else if (param == 20) m_key = 1 << KEY_SELECT;
 
             }
 
@@ -445,7 +454,7 @@ public class Main : MonoBehaviour
             // デモ中
             else if ((game == 0))
             {
-                if ((Main.m_key & ((1 << Main.KEY_SELECT) | (1 << Main.KEY_5))) != 0)
+                if ((Main.m_key & ((1 << KEY_SELECT) | (1 << KEY_5))) != 0)
                 {
                     game = 1;
                     st_time = 15;
@@ -471,20 +480,24 @@ public class Main : MonoBehaviour
                     em_x[1] = 48;
                     em_x[2] = 71;
                     em_x[3] = 94;
-                    em_y[0] = 0;
-                    em_y[1] = 0;
-                    em_y[2] = 0;
-                    em_y[3] = 0;
-                    em_buru[0] = 0;
-                    em_buru[1] = 0;
-                    em_buru[2] = 0;
-                    em_buru[3] = 0;
-                    em_time[0] = 0;
-                    em_time[1] = 0;
-                    em_time[2] = 0;
-                    em_time[3] = 15;
+                    //em_y[0] = 0;
+                    //em_y[1] = 0;
+                    //em_y[2] = 0;
+                    //em_y[3] = 0;
+                    //em_buru[0] = 0;
+                    //em_buru[1] = 0;
+                    //em_buru[2] = 0;
+                    //em_buru[3] = 0;
+                    //em_time[0] = 0;
+                    //em_time[1] = 0;
+                    //em_time[2] = 0;
+                    //em_time[3] = 15;
 
-                    //mc_title._visible = false;
+                    dumbbells[0] = new Dumbbell(0);
+                    dumbbells[1] = new Dumbbell(0);
+                    dumbbells[2] = new Dumbbell(0);
+                    dumbbells[3] = new Dumbbell(15);
+
                     //mc_game._visible = true;
                     //mc_game_over._visible = false;
                     mc_title.SetActive(false);
@@ -518,26 +531,13 @@ public class Main : MonoBehaviour
             // タイトル
             case 0:
                 {
-                    //mc_title._visible = true;
-                    //mc_game._visible = false;
                     mc_title.SetActive(true);
                     mc_game.SetActive(false);
-
                     break;
                 }
             // ゲーム中
             case 1:
                 {
-                    //opl_x = pl_x;
-                    //opl_y = pl_y;
-                    //ocmb_x = cmb_x;
-                    //ocmb_x2 = cmb_x2;
-                    //for (ct = 0; ct < 4; ct++)
-                    //{
-                    //    oem_x[ct] = em_x[ct] + em_buru[ct];
-                    //    oem_y[ct] = em_y[ct];
-                    //}
-
                     if (st_time != 0)
                     {
                         // ゲームスタート時
@@ -604,9 +604,9 @@ public class Main : MonoBehaviour
                         //---------------------------------
                         em_move_counter = 0;
                         //おもり動作チェック
-                        for (ct = 0; ct < 4; ct++)
+                        for (ct = 0; ct < DUMBBELL_NUM; ct++)
                         {
-                            if (em_time[ct] > 0)
+                            if (dumbbells[ct].em_time > 0)
                             {
                                 em_move_counter++;
                             }
@@ -625,14 +625,14 @@ public class Main : MonoBehaviour
                         }
                         if (is_em_move)
                         {
-                            for (ct = 0; ct < 4; ct++)
+                            for (ct = 0; ct < DUMBBELL_NUM; ct++)
                             {
-                                if (em_time[ct] == 0)
+                                if (dumbbells[ct].em_time == 0)
                                 {
                                     //if ( 0 == ((int)(R.nextInt()%16))){
                                     if (0 == Mathf.Floor(Random.value * 100 % 16))
                                     {
-                                        em_time[ct] = 20;
+                                        dumbbells[ct].em_time = 20;
                                     }
                                 }
                             }
@@ -641,45 +641,19 @@ public class Main : MonoBehaviour
                         //---------------------------------
                         //	重り 動作
                         //---------------------------------
-                        for (ct = 0; ct < 4; ct++)
+                        for (ct = 0; ct < DUMBBELL_NUM; ct++)
                         {
-                            if (em_time[ct] > 0)
+                            if (dumbbells[ct].em_time > 0)
                             {
-                                em_time[ct]--;
+                                dumbbells[ct].UpdateState();
 
-                                if (em_time[ct] >= 16)
-                                {
-                                    //落下予兆
-                                    em_buru[ct] = (em_buru[ct] + 1) % 2;
-                                }
-                                else if (em_time[ct] >= 12)
-                                {
-                                    //落下中
-                                    em_buru[ct] = 0;
-                                    em_y[ct] = em_y[ct] + 10;
-                                }
-                                else if (em_time[ct] >= 7)
-                                {
-                                    //落下済み
-                                    em_y[ct] = 42;
-                                }
-                                else if (em_time[ct] > 0)
-                                {
-                                    //巻き上げ
-                                    em_y[ct] = em_y[ct] - 6;
-                                }
-                                else
-                                {
-                                    //停止
-                                    em_y[ct] = 0;
-                                }
                                 //画面演出
-                                if (em_time[ct] == 11)
+                                if (dumbbells[ct].em_time == 11)
                                 {
                                     // ドシンと画面ゆらす
                                     mc_game.transform.position = new Vector2(mc_game.transform.position.x, -2);
                                 }
-                                else if (em_time[ct] == 10)
+                                else if (dumbbells[ct].em_time == 10)
                                 {
                                     mc_game.transform.position = new Vector2(mc_game.transform.position.x, 0);
                                 }
@@ -749,9 +723,10 @@ public class Main : MonoBehaviour
                             pl_x = 98;
                         }
                         //	当り判定	
-                        for (ct = 0; ct < 4; ct++)
+                        for (ct = 0; ct < DUMBBELL_NUM; ct++)
                         {
-                            if ((em_time[ct] == 12))
+                            // == 12で落下完了状態
+                            if ((dumbbells[ct].em_time == 12))
                             {
                                 if (pl_x < 19)
                                 {
@@ -765,6 +740,7 @@ public class Main : MonoBehaviour
                                 {
                                     clc = 3;
                                 }
+                                //自分のｘ座標位置がどの重りの位置にあるかチェック
                                 if (clc == ct)
                                 {
                                     clc = (int)Mathf.Floor(((pl_x - 14) / (16 * (ct + 1))));
@@ -793,10 +769,10 @@ public class Main : MonoBehaviour
                     // 初期表示
                     //init_print = 1;
                     // 重り
-                    for (ct = 0; ct < 4; ct++)
+                    for (ct = 0; ct < DUMBBELL_NUM; ct++)
                     {
                         //drawLine(mc_wire[ct], 0xffffff, em_x[ct] + 8 + gm_off, 22, em_x[ct] + 8 + gm_off, em_y[ct] + 30);
-                        drawImage(mc_weight[ct], em_x[ct] + em_buru[ct] + gm_off, em_y[ct] + 30);
+                        drawImage(mc_weight[ct], em_x[ct] + dumbbells[ct].em_buru + gm_off, dumbbells[ct].em_y + 30);
                     }
                     // プレイヤー
                     if (game == 2)
