@@ -7,15 +7,10 @@ using UnityEngine.EventSystems;
 public class Main : MonoBehaviour
 {
     /** 不正防止キーワード */
-    static string ACCESS_CHECK_KEY = "55f5275f14";
+    string ACCESS_CHECK_KEY = "55f5275f14";
 
-    // 画面サイズ
-    /** 画面サイズ：W */
-    public static int DISP_W = 480;
-    /** 画面サイズ：H */
-    public static int DISP_H = 480;
-    /** 画面周りの余白サイズ */
-    static int DISP_FRAME = 100;
+    [SerializeField]
+    GameConfig gameConfig;
 
     // キー処理関係
     /** キープレスイベント */
@@ -65,11 +60,11 @@ public class Main : MonoBehaviour
     /** キー状態 */
     static int m_key = 0;
     /**　キー押し続け判定フラグ */
-    static int m_hold_key_flg = 0;
+    int m_hold_key_flg = 0;
 
     /** ルーチン番号 */
-    static int m_r0 = 0;
-    static int m_r1 = 0;
+    int m_r0 = 0;
+    int m_r1 = 0;
 
     // debug:デバック用
     /** 時間表示用 */
@@ -111,7 +106,7 @@ public class Main : MonoBehaviour
     /// <summary>
     /// レベルアップタイマー
     /// </summary>
-     int l_time = 0;
+    int l_time = 0;
     int clc = 0;
     int tubure = 0;
     [SerializeField]
@@ -126,9 +121,9 @@ public class Main : MonoBehaviour
     /// <summary>
     /// プレイヤー位置
     /// </summary>
-    [SerializeField]
-    int pl_x = 0;
-    static int pl_y = 0;
+    //[SerializeField]
+    //int pl_x = 0;
+    int pl_y = 0;
     //static int opl_x = 0;
     //static int opl_y = 0;
     int start_time = 0;
@@ -161,6 +156,8 @@ public class Main : MonoBehaviour
     //[SerializeField]
     //int[] em_time = new int[4];
 
+    [SerializeField]
+    PlayerController playerController;
 
     // ムービークリップ
     // 親クリップ：swfRoot
@@ -232,15 +229,24 @@ public class Main : MonoBehaviour
     /// </summary>
     private bool is_em_move = false;
 
-    //-----------------------------------
-    // 調整パラメータ
-    //-----------------------------------
-    public const int IKIGIRE_LIMIT = 20;
-    public const int HASHIRU_SPEED = 5;
-    public const int RUNNING_COUNT = 1;
-    public const int ENERGY_RECOVER = 1;
-    public const int ENERGY_EXPEND = -1;
-    public const int ENERGY_EXPEND_IKIGIRE = -2;
+    enum GameState
+    {
+        Title = 0,
+        Ready = 10,
+        Playing = 20,
+        GameOver = 30
+    }
+    private GameState gameState;
+
+    enum PlayerState
+    {
+        Idle = 0,
+        Run = 1,
+        Ikigire = 2,
+        Death = 3
+    }
+
+
 
     /** コンストラクタ */
     private void Start()
@@ -404,7 +410,7 @@ public class Main : MonoBehaviour
             forward_hashiru = 0;
             running_time = 0;
             running_counter = 0;
-            iki_pls = ENERGY_RECOVER;
+            iki_pls = GameConfig.ENERGY_RECOVER;
 
         }
         // キープレス
@@ -439,16 +445,16 @@ public class Main : MonoBehaviour
             {
                 if (ikigire_on == 0)
                 {
-                    forward_hashiru = HASHIRU_SPEED;
-                    running_counter = RUNNING_COUNT;
-                    iki_pls = ENERGY_EXPEND;
+                    forward_hashiru = GameConfig.HASHIRU_SPEED;
+                    running_counter = GameConfig.RUNNING_COUNT;
+                    iki_pls = GameConfig.ENERGY_EXPEND;
                 }
                 else
                 {
                     forward_hashiru = 0;
                     running_time = 0;
                     running_counter = 0;
-                    iki_pls = ENERGY_EXPEND_IKIGIRE;
+                    iki_pls = GameConfig.ENERGY_EXPEND_IKIGIRE;
                 }
             }
             // デモ中
@@ -456,13 +462,15 @@ public class Main : MonoBehaviour
             {
                 if ((Main.m_key & ((1 << KEY_SELECT) | (1 << KEY_5))) != 0)
                 {
+                    gameState = GameState.Ready;
                     game = 1;
                     st_time = 15;
                     score = 0;
                     //init_print = 0;
-                    pl_x = 50;
+                    playerController = new PlayerController(50);
+                    //pl_x = 50;
                     pl_y = 80;
-                    back_ugoku = -2;
+                    back_ugoku = 2;
                     cmbSpeedlevel = 0;
                     u_timer = 0;
                     forward_hashiru = 0;
@@ -509,7 +517,7 @@ public class Main : MonoBehaviour
                     plState = 0;
                     setKobunAnime(1);
                     //drawImage(mc_kobun, pl_x + gm_off, pl_y - 1);
-                    drawImage(mc_player, pl_x + gm_off + plOffsetX, pl_y + plOffsetY - 1);
+                    drawImage(mc_player, playerController.GetPosition() + gm_off + plOffsetX, pl_y + plOffsetY - 1);
                     drawTotalScore();
                 }
             }
@@ -537,30 +545,29 @@ public class Main : MonoBehaviour
                 }
             // ゲーム中
             case 1:
+                ///---------------------------------
+                /// ゲームロジック状態管理
+                ///---------------------------------
+                switch (gameState)
                 {
-                    if (st_time != 0)
-                    {
-                        // ゲームスタート時
+                    case GameState.Ready:
                         st_time--;
                         if (st_time == 0)
                         {
-                            //oto0 = 1;
                             setKobunAnime(2);
                             mc_gear_l.gotoAndPlay(1);
                             mc_gear_r.gotoAndPlay(1);
-                            //mc_ready._visible = false;
                             mc_ready.SetActive(false);
+                            gameState = GameState.Playing;
+                            break;
                         }
-                        else
-                        {
-                            plState = 0;
-                            setKobunAnime(1);
-                            //mc_ready._visible = true;
-                            mc_ready.SetActive(true);
-                        }
-                    }
-                    else
-                    {
+
+                        plState = 0;
+                        setKobunAnime(1);
+                        mc_ready.SetActive(true);
+                        break;
+
+                    case GameState.Playing:
                         // ゲームレベル加算				
                         l_time++;
                         if (l_time == 100)
@@ -569,12 +576,12 @@ public class Main : MonoBehaviour
                             l_time = 0;
                         }
                         //	コンベア移動
-                        cmb_x = cmb_x + back_ugoku;
+                        cmb_x = cmb_x - back_ugoku;
                         if (cmb_x <= 9)
                         {
                             cmb_x = 107;
                         }
-                        cmb_x2 = cmb_x2 - (back_ugoku);
+                        cmb_x2 = cmb_x2 + (back_ugoku);
                         if (cmb_x2 >= 108)
                         {
                             cmb_x2 = 10;
@@ -583,7 +590,7 @@ public class Main : MonoBehaviour
                         ikigire = ikigire + iki_pls;
                         if (ikigire_on == 1)
                         {
-                            if (ikigire >= IKIGIRE_LIMIT)
+                            if (ikigire >= GameConfig.IKIGIRE_LIMIT)
                             {
                                 ikigire_on = 0;
                             }
@@ -676,7 +683,7 @@ public class Main : MonoBehaviour
                             if (0 == clc)
                             {
                                 //コンベア高速
-                                back_ugoku = -4;
+                                back_ugoku = 4;
                                 u_timer = 20;
                                 cmbSpeedlevel = 1;
 
@@ -693,7 +700,7 @@ public class Main : MonoBehaviour
                             cmbSpeedlevel = 0;
                             mc_gear_l.gotoAndPlay(1);
                             mc_gear_r.gotoAndPlay(1);
-                            back_ugoku = -2;
+                            back_ugoku = 2;
                         }
                         //------------------------------------------
                         //	プレイヤー移動
@@ -707,34 +714,35 @@ public class Main : MonoBehaviour
                         running_time = running_time + running_counter;
                         if (running_time >= 8)
                         {
-                            forward_hashiru = HASHIRU_SPEED;
+                            forward_hashiru = GameConfig.HASHIRU_SPEED;
                         }
                         //プレイヤーのポジション計算
-                        pl_x = pl_x + back_ugoku + forward_hashiru;
+                        //pl_x = pl_x + back_ugoku + forward_hashiru;
+                        var pos = playerController.Running(forward_hashiru, back_ugoku);
                         //死亡（串刺し）
-                        if (pl_x <= 19)
+                        if (pos <= 19)
                         {
                             go_time = 15;
                             game = 2;
                         }
                         //前方の壁にぶち当たる状態
-                        if (pl_x >= 98)
+                        if (pos >= 98)
                         {
-                            pl_x = 98;
+                            pos = 98;
                         }
                         //	当り判定	
                         for (ct = 0; ct < DUMBBELL_NUM; ct++)
                         {
-                            // == 12で落下完了状態
+                            // == 12で重り落下完了状態
                             if ((dumbbells[ct].em_time == 12))
                             {
-                                if (pl_x < 19)
+                                if (pos < 19)
                                 {
                                     clc = 0;
                                 }
                                 else
                                 {
-                                    clc = (int)Mathf.Floor((pl_x - 19) / 22);
+                                    clc = (int)Mathf.Floor((pos - 19) / 22);
                                 }
                                 if (clc >= 4)
                                 {
@@ -743,12 +751,13 @@ public class Main : MonoBehaviour
                                 //自分のｘ座標位置がどの重りの位置にあるかチェック
                                 if (clc == ct)
                                 {
-                                    clc = (int)Mathf.Floor(((pl_x - 14) / (16 * (ct + 1))));
+                                    clc = (int)Mathf.Floor(((pos - 14) / (16 * (ct + 1))));
                                     if ((2 >= clc) && (-2 <= clc))
                                     {
                                         go_time = 15;
                                         game = 2;
                                         tubure = 1;
+                                        gameState = GameState.GameOver;
                                     }
                                 }
                             }
@@ -761,133 +770,121 @@ public class Main : MonoBehaviour
                         {
                             score = 999999;
                         }
-                    }
-
-                    /***************/
-                    //   表示
-                    /***************/
-                    // 初期表示
-                    //init_print = 1;
-                    // 重り
-                    for (ct = 0; ct < DUMBBELL_NUM; ct++)
-                    {
-                        //drawLine(mc_wire[ct], 0xffffff, em_x[ct] + 8 + gm_off, 22, em_x[ct] + 8 + gm_off, em_y[ct] + 30);
-                        drawImage(mc_weight[ct], em_x[ct] + dumbbells[ct].em_buru + gm_off, dumbbells[ct].em_y + 30);
-                    }
-                    // プレイヤー
-                    if (game == 2)
-                    {
-                        if (tubure == 0)
+                        break;
+                    case GameState.GameOver:
                         {
-                            plState = 4;
-                            //drawImage(g,img[3],pl_x+gm_off,pl_y);
-                            setKobunAnime(4);
-                            //drawImage(mc_kobun, pl_x + gm_off, pl_y - 1);
-                            drawImage(mc_player, pl_x + gm_off + plOffsetX, pl_y + plOffsetY - 1);
+                            break;
                         }
-                        else
-                        {
-                            plState = 5;
-                            //drawImage(g,img[12],pl_x+gm_off,pl_y+5);
-                            setKobunAnime(5);
-                            //drawImage(mc_kobun, pl_x + gm_off, pl_y + 5);
-                            drawImage(mc_player, pl_x + gm_off + plOffsetX, pl_y + plOffsetY + 5);
-                        }
-
-                        // ギア停止
-                        mc_gear_l.stop();
-                        mc_gear_r.stop();
-                    }
-                    else
-                    {
-                        if (st_time != 0)
-                        {
-                            plState = 0;
-                            setKobunAnime(1);
-                        }
-                        else if (forward_hashiru == HASHIRU_SPEED)
-                        {
-                            //drawImage(g,img[3+char_p],pl_x+gm_off,pl_y);
-                            plState = 1;
-                            setKobunAnime(3);
-                            //drawImage(mc_kobun, pl_x + gm_off, pl_y - 1);
-                            drawImage(mc_player, pl_x + gm_off + plOffsetX, pl_y + plOffsetY - 1);
-                        }
-                        else
-                        {
-                            plState = 0;
-                            //drawImage(g,img[1+char_p],pl_x+gm_off,pl_y);
-                            setKobunAnime(2);
-                            //drawImage(mc_kobun, pl_x + gm_off, pl_y - 1);
-                            drawImage(mc_player, pl_x + gm_off + plOffsetX, pl_y + plOffsetY - 1);
-                        }
-                    }
-
-                    // 歯車
-                    drawImage(mc_band_up, cmb_x + gm_off, 96);
-                    drawImage(mc_band_down, cmb_x2 + gm_off, 102);
-
-                    if (u_timer == 0)
-                    {
-                        drawImage(mc_gear_l, 8 + gm_off, 96);
-                        drawImage(mc_gear_r, 106 + gm_off, 96);
-                    }
-                    else
-                    {
-                        drawImage(mc_gear_l, 8 + gm_off, 96);
-                        drawImage(mc_gear_r, 106 + gm_off, 96);
-                    }
-                    // 息切れメーター
-                    if (ikigire >= 20)
-                    {
-                        fillEnergyGauge(mc_energy, 0x0000ff, 0 + 60 + gm_off, 110, ikigire, 7);
-                    }
-                    else
-                    {
-                        fillEnergyGauge(mc_energy, 0xff0000, 0 + 60 + gm_off, 110, ikigire, 7);
-                    }
-                    // スコア
-                    drawTotalScore();
-
-                    break;
                 }
+                /***************/
+                //   表示
+                /***************/
+                // 初期表示
+                //init_print = 1;
+                // 重り
+                var posX = playerController.GetPosition();
+                for (ct = 0; ct < DUMBBELL_NUM; ct++)
+                {
+                    //drawLine(mc_wire[ct], 0xffffff, em_x[ct] + 8 + gm_off, 22, em_x[ct] + 8 + gm_off, em_y[ct] + 30);
+                    drawImage(mc_weight[ct], em_x[ct] + dumbbells[ct].em_buru + gm_off, dumbbells[ct].em_y + 30);
+                }
+                // プレイヤー
+                if (game == 2)
+                {
+                    if (tubure == 0)
+                    {
+                        plState = 4;
+                        //drawImage(g,img[3],pl_x+gm_off,pl_y);
+                        setKobunAnime(4);
+                        //drawImage(mc_kobun, pl_x + gm_off, pl_y - 1);
+                        drawImage(mc_player, posX + gm_off + plOffsetX, pl_y + plOffsetY - 1);
+                    }
+                    else
+                    {
+                        plState = 5;
+                        //drawImage(g,img[12],pl_x+gm_off,pl_y+5);
+                        setKobunAnime(5);
+                        //drawImage(mc_kobun, pl_x + gm_off, pl_y + 5);
+                        drawImage(mc_player, posX + gm_off + plOffsetX, pl_y + plOffsetY + 5);
+                    }
+
+                    // ギア停止
+                    mc_gear_l.stop();
+                    mc_gear_r.stop();
+                }
+                else
+                {
+                    if (st_time != 0)
+                    {
+                        plState = 0;
+                        setKobunAnime(1);
+                    }
+                    else if (forward_hashiru == GameConfig.HASHIRU_SPEED)
+                    {
+                        //drawImage(g,img[3+char_p],pl_x+gm_off,pl_y);
+                        plState = 1;
+                        setKobunAnime(3);
+                        //drawImage(mc_kobun, pl_x + gm_off, pl_y - 1);
+                        drawImage(mc_player, posX + gm_off + plOffsetX, pl_y + plOffsetY - 1);
+                    }
+                    else
+                    {
+                        plState = 0;
+                        //drawImage(g,img[1+char_p],pl_x+gm_off,pl_y);
+                        setKobunAnime(2);
+                        //drawImage(mc_kobun, pl_x + gm_off, pl_y - 1);
+                        drawImage(mc_player, posX + gm_off + plOffsetX, pl_y + plOffsetY - 1);
+                    }
+                }
+
+                // 歯車
+                drawImage(mc_band_up, cmb_x + gm_off, 96);
+                drawImage(mc_band_down, cmb_x2 + gm_off, 102);
+
+                if (u_timer == 0)
+                {
+                    drawImage(mc_gear_l, 8 + gm_off, 96);
+                    drawImage(mc_gear_r, 106 + gm_off, 96);
+                }
+                else
+                {
+                    drawImage(mc_gear_l, 8 + gm_off, 96);
+                    drawImage(mc_gear_r, 106 + gm_off, 96);
+                }
+                // 息切れメーター
+                if (ikigire >= 20)
+                {
+                    fillEnergyGauge(mc_energy, 0x0000ff, 0 + 60 + gm_off, 110, ikigire, 7);
+                }
+                else
+                {
+                    fillEnergyGauge(mc_energy, 0xff0000, 0 + 60 + gm_off, 110, ikigire, 7);
+                }
+                // スコア
+                drawTotalScore();
+
+                break;
             case 2:
-                {
-                    //	ゲームオーバー時				
-                    //	ゲームオーバー表示
-                    if (go_time != 0) go_time--;
+                //	ゲームオーバー時				
+                //	ゲームオーバー表示
+                if (go_time != 0) go_time--;
 
-                    if (go_time == 11)
-                    {
-                        //oto1 = 1;
-                    }
-                    else if (go_time == 10)
-                    {
-                        //mc_game_over._visible = true;
-                        mc_game_over.SetActive(true);
-                        go_time = 0;
-                    }
-                    break;
-                }
-            default:
+                if (go_time == 11)
                 {
-                    //trace("game error = " + game);
-                    break;
+                    //oto1 = 1;
                 }
+                else if (go_time == 10)
+                {
+                    //mc_game_over._visible = true;
+                    mc_game_over.SetActive(true);
+                    go_time = 0;
+                }
+                break;
+            default:
+                //trace("game error = " + game);
+                break;
         }
 
-    }
-
-
-    /** ルーチン番号のセット */
-    public static void setRoutineNo(int set_r0)
-    {
-        setRoutineNo2(set_r0, 0);
-    }
-    public static void setRoutineNo2(int set_r0, int set_r1)
-    {
-        m_r0 = set_r0;
-        m_r1 = set_r1;
     }
 
     public static void drawImage(MovieClip im, int x, int y)

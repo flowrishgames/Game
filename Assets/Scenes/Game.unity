@@ -306,6 +306,7 @@ GameObject:
   - component: {fileID: 1279813329}
   - component: {fileID: 1279813330}
   - component: {fileID: 1279813328}
+  - component: {fileID: 1279813331}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -353,6 +354,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7ba64eb6de270742889fb8327bf8196, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameConfig: {fileID: 0}
+  dumbbells:
+  - em_time: 0
+    em_buru: 0
+    em_y: 0
+  - em_time: 0
+    em_buru: 0
+    em_y: 0
+  - em_time: 0
+    em_buru: 0
+    em_y: 0
+  - em_time: 0
+    em_buru: 0
+    em_y: 0
   m_key_listener: {fileID: 617591610}
   game: 0
   level: 0
@@ -364,11 +379,23 @@ MonoBehaviour:
   forward_hashiru: 0
   back_ugoku: 0
   running_time: 0
-  em_time: 00000000000000000000000000000000
+  playerController: {fileID: 1279813331}
   swfRoot: {fileID: 1279813329}
   mc_score: {fileID: 548263018}
   m_kobun_ani: 0
   playerObject: {fileID: 6641249436425829721, guid: e6e6d1d12aebbf549a2a14282f1f8b4f, type: 3}
+--- !u!114 &1279813331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1279813327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7afbe1d64b3c935449a9086f504a0bf0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1311400446
 GameObject:
   m_ObjectHideFlags: 0

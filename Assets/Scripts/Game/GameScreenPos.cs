@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,10 +10,10 @@ public class GameScreenPos : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        var aspectRate = Main.DISP_W / (float)Screen.width;
+        var aspectRate = GameConfig.DISP_W / (float)Screen.width;
         var screenHeight = Screen.height / 2 * aspectRate;
         Camera.main.orthographicSize = Screen.height / 2 * aspectRate;
-        Camera.main.transform.position = new Vector3(Main.DISP_W / 2, -Main.DISP_H / 2, -10);
+        Camera.main.transform.position = new Vector3(GameConfig.DISP_W / 2, -GameConfig.DISP_H / 2, -10);
 
         if (canvas != null)
         {
